@@ -1,7 +1,6 @@
 package cz.czechitas.selenium;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,7 +10,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class TestyPrihlasovaniNaKurzy {
-
+    //konstanty
+    private static final String URL_APLIKACE = "https://cz-test-dva.herokuapp.com/";
     WebDriver prohlizec;
 
     @BeforeEach
@@ -22,168 +22,193 @@ public class TestyPrihlasovaniNaKurzy {
         prohlizec.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
     }
 
-    @Test
-    public void uzivateleSuctemLzePrihlasit() {
-        prohlizec.navigate().to("https://cz-test-jedna.herokuapp.com/prihlaseni");
+    public void vlozitEmail() {
+        Assertions.assertTrue(prohlizec.getCurrentUrl().endsWith("/prihlaseni"));
 
-        WebElement inputEmail = prohlizec.findElement(By.xpath("//input[@id='email']"));
+        WebElement inputEmail = prohlizec.findElement(By.id("email"));
         inputEmail.click();
         inputEmail.sendKeys("vlcamagda@gmail.com");
-        WebElement inputHeslo = prohlizec.findElement(By.xpath("//input[@id='password']"));
-        inputHeslo.click();
-        inputHeslo.sendKeys("Tq4qS52J3zxH4vy");
-        WebElement btnPrihlasit = prohlizec.findElement(By.xpath("//button[@class='btn btn-primary']"));
-        btnPrihlasit.click();
-        String aktualniStranka = prohlizec.getTitle();
-        String ocekavanaStranka = "Přihlášky - Czechitas";
-        Assertions.assertEquals(ocekavanaStranka, aktualniStranka);
     }
 
-    @Test
-    public void prihlasenyRodicMuzePrihlasitDiteNaKurz() {
-        //prihlaseni
-        uzivateleSuctemLzePrihlasit();
+    public void vlozitHeslo() {
+        Assertions.assertTrue(prohlizec.getCurrentUrl().endsWith("/prihlaseni"));
 
-        //klik na Vytvořit novou přihlášku
-        WebElement btnVytvorNovouPrihlasku = prohlizec.findElement(By.xpath("//a[@class='btn btn-sm btn-info']"));
-        btnVytvorNovouPrihlasku.click();
+        WebElement inputHeslo = prohlizec.findElement(By.id("password"));
+        inputHeslo.click();
+        inputHeslo.sendKeys("Tq4qS52J3zxH4vy");
+        WebElement btnPrihlasit = prohlizec.findElement(By.xpath("//button[contains(@class, 'qa-login-button')]"));
+        btnPrihlasit.click();
+    }
 
-        //klik na Tříměsíční kurzy webu 2. z listu //a[@class='btn btn-sm align-self-center btn-primary']
+    public void prihlasitUzivatele() {
+        vlozitEmail();
+        vlozitHeslo();
+    }
+
+    public void vybratKurz() {
         List<WebElement> btnsViceInformaci = prohlizec.findElements(By.xpath("//a[@class='btn btn-sm align-self-center btn-primary']"));
         WebElement btnTrimesicniKurzyWebu = btnsViceInformaci.get(1);
         btnTrimesicniKurzyWebu.click();
 
-        //klik na Vytvoř přihlášku //a[@class='btn btn-sm align-self-center btn-primary']
-        WebElement btnVytvorPrihlasku = prohlizec.findElement(By.xpath("//a[@class='btn btn-sm align-self-center btn-primary']"));
+        WebElement btnVytvorPrihlasku = prohlizec.findElement(By.linkText("Vytvořit přihlášku"));
         btnVytvorPrihlasku.click();
+    }
 
-        //klik na Termín //button[@data-id='term_id']
+    public void vybratTermin() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
+
         WebElement btnTermin = prohlizec.findElement(By.xpath("//div[text()='Vyberte termín...']"));
         btnTermin.click();
 
         WebElement inputPisDatum = prohlizec.findElement(By.xpath("//input[@type='search']"));
         inputPisDatum.click();
-        //input "21"  a entr
+
         inputPisDatum.sendKeys("21");
         inputPisDatum.sendKeys("\n");
+    }
 
-        //klik na Křestní jméno žáka //input[@id='forename']
-        //input "Bobeš"
-        WebElement inputKrestniJmeno = prohlizec.findElement(By.xpath("//input[@id='forename']"));
+    public void vyplnitJmeno() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
+
+        WebElement inputKrestniJmeno = prohlizec.findElement(By.id("forename"));
         inputKrestniJmeno.sendKeys("Bobeš");
+    }
 
-        //klik na Přijmení //input[@id='surname']
-        //input "Malý"
-        WebElement inputPrijmeni = prohlizec.findElement(By.xpath("//input[@id='surname']"));
-        inputPrijmeni.sendKeys("Malý");
+    public void vyplnitPrijmeni() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
 
-        //klik na Datum narozeni   //input[@id='birthday']
-        //input "20.07.2016"
-        WebElement inputDatumNarozeni = prohlizec.findElement(By.xpath("//input[@id='birthday']"));
+        WebElement inputPrijmeni = prohlizec.findElement(By.id("surname"));
+        inputPrijmeni.sendKeys("Malý " + System.currentTimeMillis());
+    }
+
+    public void vyplnitDatumNarozeni() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
+
+        WebElement inputDatumNarozeni = prohlizec.findElement(By.id("birthday"));
         inputDatumNarozeni.click();
         inputDatumNarozeni.sendKeys("21.07.2016");
+    }
 
-        //klik na Hotově //label[text()='Hotově']
-        WebElement inputHotove = prohlizec.findElement(By.xpath("//label[text()='Hotově']"));
+    public void vyplnitZpusobPlatby() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
+
+        WebElement inputHotove = prohlizec.findElement(By.xpath("//label[@for='payment_cash']"));
         inputHotove.click();
+    }
 
-        //klik na podmínky //label[contains (text(), 'podmínkami')]
-        WebElement inputPodminky = prohlizec.findElement(By.xpath("//label[contains (text(), 'podmínkami')]"));
+    public void souhlasitSPodminkami() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
+
+        WebElement inputPodminky = prohlizec.findElement(By.xpath("//label[@for='terms_conditions']"));
         inputPodminky.click();
+    }
 
-        //klik na vytvoř přihlášku
+    public void kliknoutVytvorPrihlasku() {
+        String nazevStranky = prohlizec.getTitle();
+        String ocekavanyNazevStranky = "Nová přihláška - Czechitas";
+        Assertions.assertEquals(ocekavanyNazevStranky, nazevStranky);
+
         WebElement btnVytvorPrihlaskuFakt = prohlizec.findElement(By.xpath("//input[@value='Vytvořit přihlášku']"));
         btnVytvorPrihlaskuFakt.click();
+    }
 
-        //klik na Přihlášky
-        WebElement btnPrihlasky = prohlizec.findElement(By.xpath("//span/a[@href='https://cz-test-jedna.herokuapp.com/zaci']"));
-        btnPrihlasky.click();
+    public void vyplnitPrihlasku() {
+        vybratTermin();
+        vyplnitJmeno();
+        vyplnitPrijmeni();
+        vyplnitDatumNarozeni();
+        vyplnitZpusobPlatby();
+        souhlasitSPodminkami();
+        kliknoutVytvorPrihlasku();
+    }
 
-        //assert
-        WebElement btnUpravit = prohlizec.findElement(By.xpath("//i[@class='fa fa-fw fa-edit pr-1']"));
-        Assertions.assertNotNull(btnUpravit, "Přihláška se nezobrazila v seznamu přihlášek");
+    public void prihlasitDiteNaKurz() {
+        prihlasitUzivatele();
+
+        Assertions.assertTrue(prohlizec.getCurrentUrl().endsWith("/zaci"));
+
+        WebElement btnVytvorNovouPrihlasku = prohlizec.findElement(By.linkText("Vytvořit novou přihlášku"));
+        btnVytvorNovouPrihlasku.click();
+
+        vybratKurz();
+        vyplnitPrihlasku();
+    }
+
+    public void odhlasitUcastNemoc() {
+        WebElement btnOdhlaseniUcasti = prohlizec.findElement(By.xpath("//a[@class='btn btn-sm btn-danger']"));
+        btnOdhlaseniUcasti.click();
+
+        WebElement moznostNemoc = prohlizec.findElement(By.xpath("//label[@for='logged_out_illness']"));
+        moznostNemoc.click();
+
+        WebElement btnOdhlasitZaka = prohlizec.findElement(By.xpath("//input[@value='Odhlásit žáka']"));
+        btnOdhlasitZaka.click();
+    }
+
+    @Test
+    public void uzivateleSuctemLzePrihlasit() {
+        //Given
+        prohlizec.navigate().to(URL_APLIKACE + "prihlaseni");
+
+        //When
+        prihlasitUzivatele();
+
+        //Then
+        Assertions.assertTrue(prohlizec.getCurrentUrl().endsWith("/zaci"));
+    }
+
+    @Test
+    public void prihlasenyRodicMuzePrihlasitDiteNaKurz() {
+        prohlizec.navigate().to(URL_APLIKACE + "prihlaseni");
+
+        prihlasitUzivatele();
+
+        Assertions.assertTrue(prohlizec.getCurrentUrl().endsWith("/zaci"));
+
+        WebElement btnVytvorNovouPrihlasku = prohlizec.findElement(By.linkText("Vytvořit novou přihlášku"));
+        btnVytvorNovouPrihlasku.click();
+
+        vybratKurz();
+        vyplnitPrihlasku();
+
+        WebElement potvrzeniPrihlasky = prohlizec.findElement(By.xpath("//*[text()='Stáhnout potvrzení o přihlášení']"));
+        Assertions.assertNotNull(potvrzeniPrihlasky);
     }
 
     @Test
     public void RodicNejprveVybereKurzApakSePrihlasiPrihlaskaSeUlozi() {
-        prohlizec.navigate().to("https://cz-test-jedna.herokuapp.com/");
-        //klik na Tříměsíční kurzy webu
-        WebElement btnTrimesicniKurzyWebu = prohlizec.findElement(By.xpath("//a[@href='https://cz-test-jedna.herokuapp.com/11-trimesicni-kurzy-webu']"));
-        btnTrimesicniKurzyWebu.click();
+        prohlizec.navigate().to(URL_APLIKACE);
+        vybratKurz();
+        prihlasitUzivatele();
+        vyplnitPrihlasku();
 
-        //klik na Vytvoř přihlášku //a[@class='btn btn-sm align-self-center btn-primary']
-        WebElement btnVytvorPrihlasku = prohlizec.findElement(By.xpath("//a[@class='btn btn-sm align-self-center btn-primary']"));
-        btnVytvorPrihlasku.click();
-
-        //přihlašení rodiče
-        WebElement inputEmail = prohlizec.findElement(By.xpath("//input[@id='email']"));
-        inputEmail.click();
-        inputEmail.sendKeys("vlcamagda@gmail.com");
-        WebElement inputHeslo = prohlizec.findElement(By.xpath("//input[@id='password']"));
-        inputHeslo.click();
-        inputHeslo.sendKeys("Tq4qS52J3zxH4vy");
-        WebElement btnPrihlasit = prohlizec.findElement(By.xpath("//button[@class='btn btn-primary']"));
-        btnPrihlasit.click();
-
-        //vyplnění příhlášky
-
-        WebElement btnTermin = prohlizec.findElement(By.xpath("//div[text()='Vyberte termín...']"));
-        btnTermin.click();
-        ///html/body/div/div/div/div/div/form/table/tbody/tr[2]/td[2]/div/div/div[1]/input
-        WebElement inputPisDatum = prohlizec.findElement(By.xpath("//input[@type='search']"));
-        inputPisDatum.click();
-        inputPisDatum.sendKeys("21");
-        inputPisDatum.sendKeys("\n");
-
-        WebElement inputKrestniJmeno = prohlizec.findElement(By.xpath("//input[@id='forename']"));
-        inputKrestniJmeno.sendKeys("Bobeš");
-
-        WebElement inputPrijmeni = prohlizec.findElement(By.xpath("//input[@id='surname']"));
-        inputPrijmeni.sendKeys("Malý");
-
-        WebElement inputDatumNarozeni = prohlizec.findElement(By.xpath("//input[@id='birthday']"));
-        inputDatumNarozeni.click();
-        inputDatumNarozeni.sendKeys("21.07.2016");
-
-        WebElement inputHotove = prohlizec.findElement(By.xpath("//label[text()='Hotově']"));
-        inputHotove.click();
-
-        WebElement inputPodminky = prohlizec.findElement(By.xpath("//label[contains (text(), 'podmínkami')]"));
-        inputPodminky.click();
-
-        WebElement btnVytvorPrihlaskuFakt = prohlizec.findElement(By.xpath("//input[@value='Vytvořit přihlášku']"));
-        btnVytvorPrihlaskuFakt.click();
-
-        WebElement btnPrihlasky = prohlizec.findElement(By.xpath("//span/a[@href='https://cz-test-jedna.herokuapp.com/zaci']"));
-        btnPrihlasky.click();
-
-        //assert
-        WebElement btnUpravit = prohlizec.findElement(By.xpath("//i[@class='fa fa-fw fa-edit pr-1']"));
-        Assertions.assertNotNull(btnUpravit, "Přihláška se nezobrazila v seznamu přihlášek");
+        WebElement potvrzeniPrihlasky = prohlizec.findElement(By.xpath("//*[text()='Stáhnout potvrzení o přihlášení']"));
+        Assertions.assertNotNull(potvrzeniPrihlasky);
     }
 
     @Test
     public void prihlasenyRodicMuzeOdhlasitDiteZkurzZduvoduNemoci() {
+        prohlizec.navigate().to(URL_APLIKACE + "prihlaseni");
+        prihlasitDiteNaKurz();
 
-        //přihlášení kurzu
-        prihlasenyRodicMuzePrihlasitDiteNaKurz();
+        odhlasitUcastNemoc();
 
-        //klik na btn odhlášení účasti //a[@class='btn btn-sm btn-danger']
-        WebElement btnOdhlaseniUcasti = prohlizec.findElement(By.xpath("//a[@class='btn btn-sm btn-danger']"));
-        btnOdhlaseniUcasti.click();
-
-        //zaškrtnutí Nemoc  //label[@for='logged_out_illness']
-        WebElement moznostNemoc = prohlizec.findElement(By.xpath("//label[@for='logged_out_illness']"));
-        moznostNemoc.click();
-
-        //klik na Odhlásit žáka //input[@value='Odhlásit žáka']
-        WebElement btnOdhlasitZaka = prohlizec.findElement(By.xpath("//input[@value='Odhlásit žáka']"));
-        btnOdhlasitZaka.click();
-
-        //assert že bude přítomno popup okno //script[3]
         WebElement popUpoknoZakOdhlasen = prohlizec.findElement(By.xpath("//script[3]"));
         Assertions.assertNotNull(popUpoknoZakOdhlasen, "žák nebyl odhlášen");
     }
+
 
     @AfterEach
     public void tearDown() {
